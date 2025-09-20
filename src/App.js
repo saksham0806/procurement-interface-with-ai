@@ -1,25 +1,127 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-function App() {
+import Navbar from "./components/Navbar"
+import Login from "./components/Login"
+import Dashboard from "./components/Dashboard"
+import RFPList from './components/RFPList';
+import QuoteList from './components/QuoteList';
+import PurchaseOrderList from './components/PurchaseOrderList';
+import './App.css'; 
+
+// Set up axios defaults
+axios.defaults.baseURL = 'http://localhost:5000';
+
+// Auth Context
+const AuthContext = React.createContext();
+
+const App = () => {
+  const [user, setUser] = useState(null);
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      // In a real app, you'd verify the token with the server
+      // For now, we'll assume it's valid and decode the user info
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        // You'd typically make an API call to get full user info
+        setUser({ id: payload.userId, role: payload.role });
+      } catch (error) {
+        localStorage.removeItem('token');
+      }
+    }
+    setLoading(false);
+  }, []);
+
+  const handleLogin = (userData) => {
+    setUser(userData);
+    setActiveTab('dashboard');
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    delete axios.defaults.headers.common['Authorization'];
+    setUser(null);
+    setActiveTab('dashboard');
+  };
+
+  if (loading) {
+    return <div className="loading">Loading...</div>;
+  }
+
+  if (!user) {
+    return <Login onLogin={handleLogin} />;
+  }
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'dashboard':
+        return <Dashboard user={user} />;
+      case 'rfps':
+        return <RFPList user={user} />;
+      case 'quotes':
+        return <QuoteList user={user} />;
+      case 'orders':
+        return <PurchaseOrderList user={user} />;
+      default:
+        return <Dashboard user={user} />;
+    }
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="app">
+      <Navbar user={user} onLogout={handleLogout} />
+      
+      <div className="app-content">
+        <nav className="sidebar">
+          <ul>
+            <li>
+              <button
+                className={activeTab === 'dashboard' ? 'active' : ''}
+                onClick={() => setActiveTab('dashboard')}
+              >
+                Dashboard
+              </button>
+            </li>
+            <li>
+              <button
+                className={activeTab === 'rfps' ? 'active' : ''}
+                onClick={() => setActiveTab('rfps')}
+              >
+                {user.role === 'buyer' ? 'My RFPs' : 'Available RFPs'}
+              </button>
+            </li>
+            {user.role === 'vendor' && (
+              <li>
+                <button
+                  className={activeTab === 'quotes' ? 'active' : ''}
+                  onClick={() => setActiveTab('quotes')}
+                >
+                  My Quotes
+                </button>
+              </li>
+            )}
+            <li>
+              <button
+                className={activeTab === 'orders' ? 'active' : ''}
+                onClick={() => setActiveTab('orders')}
+              >
+                Purchase Orders
+              </button>
+            </li>
+          </ul>
+        </nav>
+        
+        <main className="main-content">
+          {renderContent()}
+        </main>
+      </div>
     </div>
   );
-}
+};
 
 export default App;
