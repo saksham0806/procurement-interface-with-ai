@@ -7,7 +7,11 @@ import Dashboard from "./components/Dashboard"
 import RFPList from './components/RFPList';
 import QuoteList from './components/QuoteList';
 import PurchaseOrderList from './components/PurchaseOrderList';
-import './App.css'; 
+import ApprovalCenter from "./components/ApprovalCenter"
+import AIDashboard from './components/AIDashboard';
+import ContractAuditModule from './components/ContractAuditModule';
+import AIVendorEvaluation from './components/AIVendorEvaluation';
+import './App.css';
 
 // Set up axios defaults
 axios.defaults.baseURL = 'http://localhost:5000';
@@ -67,6 +71,12 @@ const App = () => {
         return <QuoteList user={user} />;
       case 'orders':
         return <PurchaseOrderList user={user} />;
+      case 'approvals':
+        return <ApprovalCenter user={user} />;
+      case 'ai-dashboard':
+        return <AIDashboard user={user} />;
+      case 'contract-audit':
+        return <ContractAuditModule onClose={() => setActiveTab('dashboard')} />;
       default:
         return <Dashboard user={user} />;
     }
@@ -75,7 +85,7 @@ const App = () => {
   return (
     <div className="app">
       <Navbar user={user} onLogout={handleLogout} />
-      
+
       <div className="app-content">
         <nav className="sidebar">
           <ul>
@@ -113,9 +123,37 @@ const App = () => {
                 Purchase Orders
               </button>
             </li>
+            {(user.role === 'approver' || user.role === 'admin') && (
+              <li>
+                <button
+                  className={activeTab === 'approvals' ? 'active' : ''}
+                  onClick={() => setActiveTab('approvals')}
+                >
+                  Pending Approvals
+                </button>
+              </li>
+            )}
+            {user.role === 'buyer' && (
+              <li>
+                <button
+                  className={activeTab === 'ai-dashboard' ? 'active' : ''}
+                  onClick={() => setActiveTab('ai-dashboard')}
+                >
+                  AI Insights
+                </button>
+              </li>
+            )}
+            {/* <li>
+              <button
+                className={activeTab === 'contract-audit' ? 'active' : ''}
+                onClick={() => setActiveTab('contract-audit')}
+              >
+                Contract Audit
+              </button>
+            </li> */}
           </ul>
         </nav>
-        
+
         <main className="main-content">
           {renderContent()}
         </main>

@@ -41,6 +41,7 @@ const Dashboard = ({ user }) => {
             </div>
           </>
         )}
+        
         {user.role === 'vendor' && (
           <>
             <div className="stat-card">
@@ -61,9 +62,92 @@ const Dashboard = ({ user }) => {
             </div>
           </>
         )}
+        
+        {user.role === 'approver' && (
+          <>
+            <div className="stat-card">
+              <h3>Pending Approvals</h3>
+              <p className="stat-number">{stats.pendingApprovals || 0}</p>
+            </div>
+            <div className="stat-card">
+              <h3>Approved This Month</h3>
+              <p className="stat-number">{stats.approvedThisMonth || 0}</p>
+            </div>
+            <div className="stat-card">
+              <h3>Total Value Approved</h3>
+              <p className="stat-number">${(stats.totalValueApproved || 0).toLocaleString()}</p>
+            </div>
+            <div className="stat-card">
+              <h3>Average Approval Time</h3>
+              <p className="stat-number">{stats.avgApprovalTime || 0} days</p>
+            </div>
+          </>
+        )}
+        
+        {user.role === 'admin' && (
+          <>
+            <div className="stat-card">
+              <h3>Total Users</h3>
+              <p className="stat-number">{stats.totalUsers || 0}</p>
+            </div>
+            <div className="stat-card">
+              <h3>Active RFPs</h3>
+              <p className="stat-number">{stats.totalActiveRFPs || 0}</p>
+            </div>
+            <div className="stat-card">
+              <h3>Pending Approvals</h3>
+              <p className="stat-number">{stats.totalPendingApprovals || 0}</p>
+            </div>
+            <div className="stat-card">
+              <h3>Monthly Volume</h3>
+              <p className="stat-number">${(stats.monthlyVolume || 0).toLocaleString()}</p>
+            </div>
+          </>
+        )}
       </div>
+      
+      {/* Welcome message for users without specific stats */}
+      {stats && Object.keys(stats).length === 0 && (
+        <div className="welcome-section">
+          <div className="welcome-card">
+            <h3>Welcome to Procurement Platform!</h3>
+            <p>Your dashboard will show relevant statistics as you start using the platform.</p>
+            <div className="quick-actions">
+              {user.role === 'buyer' && (
+                <div>
+                  <p>Get started by:</p>
+                  <ul>
+                    <li>Creating your first RFP</li>
+                    <li>Publishing RFPs to receive quotes</li>
+                    <li>Managing vendor responses</li>
+                  </ul>
+                </div>
+              )}
+              {user.role === 'vendor' && (
+                <div>
+                  <p>Get started by:</p>
+                  <ul>
+                    <li>Browsing available RFPs</li>
+                    <li>Submitting competitive quotes</li>
+                    <li>Tracking quote status</li>
+                  </ul>
+                </div>
+              )}
+              {user.role === 'approver' && (
+                <div>
+                  <p>Your role includes:</p>
+                  <ul>
+                    <li>Reviewing purchase orders</li>
+                    <li>Approving procurement requests</li>
+                    <li>Managing approval workflows</li>
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
-
 export default Dashboard;

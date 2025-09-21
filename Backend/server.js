@@ -344,6 +344,8 @@ app.post('/api/purchase-orders', authenticateToken, async (req, res) => {
   }
 });
 
+
+
 app.get('/api/purchase-orders', authenticateToken, async (req, res) => {
   try {
     let query = {};
@@ -366,7 +368,36 @@ app.get('/api/purchase-orders', authenticateToken, async (req, res) => {
   }
 });
 
+app.put('/api/purchase-orders/:id/approve', authenticateToken, async (req, res) => {
+  try {
+    const { status, comments } = req.body;
+    
+    const order = await PurchaseOrder.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ message: 'Purchase order not found' });
+    }
+
+    // Update order status
+    order.status = status;
+    
+    // Add approval record
+    order.approvals.push({
+      approver: req.user.userId,
+      status: status,
+      comments: comments,
+      approvedAt: new Date()
+    });
+
+    await order.save();
+    
+    res.json(order);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 // Dashboard/Analytics Routes
+// Enhanced dashboard stats route
 app.get('/api/dashboard/stats', authenticateToken, async (req, res) => {
   try {
     let stats = {};
@@ -378,6 +409,7 @@ app.get('/api/dashboard/stats', authenticateToken, async (req, res) => {
       const pendingOrders = await PurchaseOrder.countDocuments({ buyerId: req.user.userId, status: 'pending' });
       
       stats = { totalRFPs, activeRFPs, totalOrders, pendingOrders };
+      
     } else if (req.user.role === 'vendor') {
       const totalQuotes = await Quote.countDocuments({ vendorId: req.user.userId });
       const acceptedQuotes = await Quote.countDocuments({ vendorId: req.user.userId, status: 'accepted' });
@@ -385,11 +417,51 @@ app.get('/api/dashboard/stats', authenticateToken, async (req, res) => {
       const activeOrders = await PurchaseOrder.countDocuments({ vendorId: req.user.userId, status: 'approved' });
       
       stats = { totalQuotes, acceptedQuotes, totalOrders, activeOrders };
+      
+    } else if (req.user.role === 'approver') {
+      const pendingApprovals = await PurchaseOrder.countDocuments({ status: 'pending' });
+      
+      // Get approved orders this month
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
+      
+      const approvedThisMonth = await PurchaseOrder.countDocuments({
+        status: 'approved',
+        updatedAt: { $gte: startOfMonth }
+      });
+      
+      // Get total value of approved orders
+      const approvedOrders = await PurchaseOrder.find({ status: 'approved' });
+      const totalValueApproved = approvedOrders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+      
+      // Calculate average approval time (mock data for now)
+      const avgApprovalTime = 2.5; // You can calculate this from actual data
+      
+      stats = { pendingApprovals, approvedThisMonth, totalValueApproved, avgApprovalTime };
+      
+    } else if (req.user.role === 'admin') {
+      const totalUsers = await User.countDocuments();
+      const totalActiveRFPs = await RFP.countDocuments({ status: 'published' });
+      const totalPendingApprovals = await PurchaseOrder.countDocuments({ status: 'pending' });
+      
+      // Calculate monthly volume
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
+      
+      const monthlyOrders = await PurchaseOrder.find({
+        createdAt: { $gte: startOfMonth }
+      });
+      const monthlyVolume = monthlyOrders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+      
+      stats = { totalUsers, totalActiveRFPs, totalPendingApprovals, monthlyVolume };
     }
     
     res.json(stats);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Dashboard stats error:', error);
+    res.status(500).json({ message: 'Error fetching dashboard stats', error: error.message });
   }
 });
 
