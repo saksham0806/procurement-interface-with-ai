@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const path = require('path');
+const MONGODBURL = process.env.MONGODB_SECRET;
 
 const app = express();
 
