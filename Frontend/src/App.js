@@ -14,7 +14,7 @@ import AIVendorEvaluation from './components/AIVendorEvaluation';
 import './App.css';
 
 // Set up axios defaults
-axios.defaults.baseURL = 'http://localhost:5000';
+axios.defaults.baseURL = 'https://procurement-backend-india-1758972620.azurewebsites.net';
 
 // Auth Context
 const AuthContext = React.createContext();

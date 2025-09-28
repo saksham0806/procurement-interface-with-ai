@@ -9,12 +9,22 @@ const path = require('path');
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [
+    'https://procurementapp17589929.z29.web.core.windows.net'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Handle preflight requests
+app.options('*', cors());
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 
 // MongoDB Connection
-mongoose.connect('mongodb://localhost:27017/procurement_platform', {
+mongoose.connect('mongodb://cosmos-procurement-db-1758948799:JelUvZBsxl8rfJIvaJM8n8aoeDZ8bmLz8eiZ9hm2TJfc9bF1dc3Os0sK1PKMG3zLE8D7O6PayFhKACDbFxPlvw==@cosmos-procurement-db-1758948799.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@cosmos-procurement-db-1758948799@', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });

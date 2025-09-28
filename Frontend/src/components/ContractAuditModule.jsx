@@ -16,7 +16,7 @@ const ContractAuditModule = ({ onClose }) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.post('http://localhost:5001/api/ai/audit-contract', {
+      const response = await axios.post('http://procurement-ai-india-1758973957.centralindia.azurecontainer.io:5001/api/ai/audit-contract', {
         contract_text: contractText,
         metadata: {
           audit_date: new Date().toISOString(),

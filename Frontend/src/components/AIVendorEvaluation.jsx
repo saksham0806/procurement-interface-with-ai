@@ -16,7 +16,7 @@ const AIVendorEvaluation = ({ quotes, rfp, onClose }) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.post('http://localhost:5001/api/ai/analyze-quotes', {
+      const response = await axios.post('http://procurement-ai-india-1758973957.centralindia.azurecontainer.io:5001/api/ai/analyze-quotes', {
         quotes: quotes,
         rfp: rfp
       });

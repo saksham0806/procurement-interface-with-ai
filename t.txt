@@ -1,0 +1,4 @@
+mongodb://cosmos-procurement-db-1758948799:JelUvZBsxl8rfJIvaJM8n8aoeDZ8bmLz8eiZ9hm2TJfc9bF1dc3Os0sK1PKMG3zLE8D7O6PayFhKACDbFxPlvw==@cosmos-procurement-db-1758948799.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@cosmos-procurement-db-1758948799@
+
+Backend app created in Central India: procurement-backend-india-1758949750
+Backend URL: https://procurement-backend-india-1758949750.azurewebsites.net

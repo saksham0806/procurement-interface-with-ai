@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "Full-stack procurement automation platform",
   "main": "server.js",
+
+
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
@@ -10,7 +12,8 @@
     "client-install": "cd client && npm install",
     "client-build": "cd client && npm run build",
     "dev-full": "concurrently \"npm run dev\" \"npm run client\"",
-    "heroku-postbuild": "npm run client-install && npm run client-build"
+    "heroku-postbuild": "npm run client-install && npm run client-build",
+    "install-production": "npm install --production"
   },
   "dependencies": {
     "express": "^4.18.2",
@@ -40,6 +43,7 @@
   "author": "Your Name",
   "license": "MIT",
   "engines": {
-    "node": ">=14.0.0"
+    "node": "18.x",
+    "npm": "9.x"
   }
 }
